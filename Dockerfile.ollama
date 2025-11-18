@@ -1,0 +1,8 @@
+FROM ollama/ollama:latest
+
+ARG MODEL
+ENV MODEL=${MODEL}
+
+RUN ollama serve & \
+    sleep 5 && \
+    ollama pull ${MODEL}

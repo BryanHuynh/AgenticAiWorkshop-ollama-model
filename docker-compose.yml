@@ -1,7 +1,11 @@
 name: ${COMPOSE_PROJECT_NAME:-agentic-ai-workshop}
 services:
   ollama:
-    image: ollama/ollama:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
+      args:
+        MODEL: ${MODEL:-llama3.1:8b}
     container_name: ollama
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
@@ -10,13 +14,7 @@ services:
     restart: unless-stopped
     networks:
       - default
-    healthcheck:
-      test: ["CMD-SHELL", "ollama list | tail -n +2 | grep -q . || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 60s  
-
+      
   ollama-webui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: ollama-webui
@@ -27,8 +25,7 @@ services:
     volumes:
       - ollama_webui_data:/app/backend/data
     depends_on:
-      ollama:
-        condition: service_healthy
+      - ollama
     restart: unless-stopped
     networks:
       - default
